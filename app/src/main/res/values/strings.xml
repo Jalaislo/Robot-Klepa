@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Robot Klepa</string>
+    <string name="inputHint">Name of content</string>
+    <string name="addBtnText">Add content</string>
+    <string name="clearBtnText">Clear content</string>
+</resources>
