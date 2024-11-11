@@ -3,4 +3,5 @@
     <string name="inputHint">Name of content</string>
     <string name="addBtnText">Add content</string>
     <string name="clearBtnText">Clear content</string>
+    <string name="randomBtnText">Choose content</string>
 </resources>

@@ -19,7 +19,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 clearData();
-                //adapter.notifyItemInserted(contents.size());
             }
         });
     }
@@ -87,7 +86,11 @@ public class MainActivity extends AppCompatActivity {
             byte[] bytes = new byte[fin.available()];
             fin.read(bytes);
             String content = new String(bytes);
-            contents.add(new Content(content));
+            String[] contentList = content.split("\n");
+            for (String i : contentList) {
+                contents.add(new Content(i));
+            }
+
         } catch (IOException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         } finally {
@@ -122,5 +125,12 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.contentHolder);
         ContentAdapter adapter = new ContentAdapter(this, contents);
         recyclerView.setAdapter(adapter);
+    }
+
+    public void randomize(View v) {
+        Random random = new Random();
+        TextView contentResult = findViewById(R.id.contentResult);
+        int choice = random.nextInt(contents.size());
+        contentResult.setText(contents.get(choice).getName());
     }
 }
