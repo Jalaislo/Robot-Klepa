@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Robot Klepa</string>
-    <string name="inputHint">Name of content</string>
+    <string name="nameInputHint">Name of content</string>
+    <string name="urlInputHint">URL to watch</string>
     <string name="addBtnText">Add content</string>
     <string name="clearBtnText">Clear content</string>
     <string name="randomBtnText">Choose content</string>

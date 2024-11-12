@@ -8,7 +8,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -24,6 +23,7 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     private final static String FILE_NAME = "contentList.txt";
+    private final static String FILE_URL = "urlList.txt";
     private ArrayList<Content> contents = new ArrayList<>();
 
     @Override
@@ -37,86 +37,105 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        EditText contentField = findViewById(R.id.contentInput);
+        EditText contentNameField = findViewById(R.id.contentNameInput);
+        EditText contentURLField = findViewById(R.id.contentURLInput);
         Button addBtn = findViewById(R.id.addButton);
-        Button clearBtn = findViewById(R.id.clearButton);
         setData();
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addData(contentField);
-                setData();
-                contentField.setText(null);
-            }
-        });
-        clearBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clearData();
+                if (contentNameField.getText().toString().isEmpty() && contentURLField.getText().toString().isEmpty()) {
+                    showErrorMessage("No content to add");
+                } else if (contentNameField.getText().toString().isEmpty() && !contentURLField.getText().toString().isEmpty()) {
+                    showErrorMessage("No name for content");
+                } else if (!contentNameField.getText().toString().isEmpty() && contentURLField.getText().toString().isEmpty()) {
+                    showErrorMessage("No link for content to add");
+                } else {
+                    addData(contentNameField, contentURLField);
+                    setData();
+                    clearFields();
+                }
             }
         });
     }
 
-    private void addData(@NonNull EditText contentField) {
-        FileOutputStream fos = null;
+    private void addData(EditText contentField, EditText urlField) {
+        FileOutputStream fosName = null;
+        FileOutputStream fosURL = null;
         try {
-            fos = openFileOutput(FILE_NAME, MODE_APPEND);
+            fosName = openFileOutput(FILE_NAME, MODE_APPEND);
+            fosURL = openFileOutput(FILE_URL, MODE_APPEND);
             String contentName = contentField.getText().toString() + "\n";
-            fos.write(contentName.getBytes());
+            String contentURL = urlField.getText().toString() + "\n";
+            fosName.write(contentName.getBytes());
+            fosURL.write(contentURL.getBytes());
             Toast.makeText(this, "Файл сохранен", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            showErrorMessage(e.getMessage());
         } finally {
             try {
-                if (fos != null)
-                    fos.close();
+                if (fosName != null)
+                    fosName.close();
+                if (fosURL != null)
+                    fosURL.close();
             } catch (IOException e) {
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+                showErrorMessage(e.getMessage());
             }
         }
     }
 
     private void setData() {
-        FileInputStream fin = null;
-        updateContentList();
+        FileInputStream finName = null;
+        FileInputStream finURL = null;
         try {
-            fin = openFileInput(FILE_NAME);
+            finName = openFileInput(FILE_NAME);
+            finURL = openFileInput(FILE_URL);
             contents.clear();
-            byte[] bytes = new byte[fin.available()];
-            fin.read(bytes);
-            String content = new String(bytes);
-            String[] contentList = content.split("\n");
-            for (String i : contentList) {
-                contents.add(new Content(i));
+            byte[] bytes = new byte[finName.available()];
+            finName.read(bytes);
+            String names = new String(bytes);
+            bytes = new byte[finURL.available()];
+            finURL.read(bytes);
+            String url = new String(bytes);
+            String[] urlList = url.split("\n");
+            String[] namesList = names.split("\n");
+            for (int i = 0; i < namesList.length; ++i) {
+                contents.add(new Content(i + 1 + ". ", namesList[i], urlList[i]));
             }
-
+            updateContentList();
         } catch (IOException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            showErrorMessage(e.getMessage());
         } finally {
             try {
-                if (fin != null)
-                    fin.close();
+                if (finName != null)
+                    finName.close();
+                if (finURL != null)
+                    finURL.close();
             } catch (IOException e) {
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+                showErrorMessage(e.getMessage());
             }
         }
     }
 
-    private void clearData() {
-        FileOutputStream fos = null;
+    public void clearData(View v) {
+        FileOutputStream fosName = null;
+        FileOutputStream fosURL = null;
         try {
-            fos = openFileOutput(FILE_NAME, MODE_PRIVATE);
+            fosName = openFileOutput(FILE_NAME, MODE_PRIVATE);
+            fosURL = openFileOutput(FILE_URL, MODE_PRIVATE);
             contents.clear();
             updateContentList();
         } catch (IOException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            showErrorMessage(e.getMessage());
         } finally {
             try {
-                if (fos != null)
-                    fos.close();
+                if (fosName != null)
+                    fosName.close();
+                if (fosURL != null)
+                    fosURL.close();
             } catch (IOException e) {
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+                showErrorMessage(e.getMessage());
             }
         }
     }
@@ -129,8 +148,25 @@ public class MainActivity extends AppCompatActivity {
 
     public void randomize(View v) {
         Random random = new Random();
-        TextView contentResult = findViewById(R.id.contentResult);
+        TextView contentResultName = findViewById(R.id.contentResultName);
+        TextView contentResultURL = findViewById(R.id.contentResultURL);
         int choice = random.nextInt(contents.size());
-        contentResult.setText(contents.get(choice).getName());
+        contentResultName.setText(contents.get(choice).getName());
+        contentResultURL.setText(contents.get(choice).getUrl());
+    }
+
+    private void showErrorMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    private void clearFields() {
+        EditText name = findViewById(R.id.contentNameInput);
+        EditText url = findViewById(R.id.contentURLInput);
+        TextView resultName = findViewById(R.id.contentResultName);
+        TextView resultURL = findViewById(R.id.contentResultURL);
+        url.setText(null);
+        name.setText(null);
+        resultName.setText(null);
+        resultURL.setText(null);
     }
 }
