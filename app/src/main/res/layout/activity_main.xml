@@ -11,12 +11,12 @@
         android:id="@+id/contentNameInput"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="16sp"
+        android:layout_marginTop="16sp"
         android:ems="10"
         android:hint="@string/nameInputHint"
         android:inputType="text"
-        android:minHeight="48dp"
+        android:minHeight="48sp"
         android:textColorHint="@color/hint"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -25,21 +25,21 @@
         android:id="@+id/contentURLInput"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="16sp"
         android:ems="10"
         android:hint="@string/urlInputHint"
         android:inputType="textUri"
-        android:minHeight="48dp"
+        android:minHeight="48sp"
         android:textColorHint="@color/hint"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/contentNameInput" />
 
     <Button
         android:id="@+id/addButton"
-        android:layout_width="150dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="16dp"
+        android:layout_width="150sp"
+        android:layout_height="48sp"
+        android:layout_marginTop="36sp"
+        android:layout_marginEnd="16sp"
         android:text="@string/addBtnText"
         app:layout_constraintBottom_toTopOf="@+id/randomizeButton"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,9 +48,9 @@
 
     <Button
         android:id="@+id/randomizeButton"
-        android:layout_width="150dp"
-        android:layout_height="45dp"
-        android:layout_marginEnd="16dp"
+        android:layout_width="150sp"
+        android:layout_height="48sp"
+        android:layout_marginEnd="16sp"
         android:onClick="randomize"
         android:text="@string/randomBtnText"
         app:layout_constraintBottom_toTopOf="@+id/clearButton"
@@ -58,25 +58,25 @@
 
     <Button
         android:id="@+id/clearButton"
-        android:layout_width="150dp"
-        android:layout_height="45dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="4dp"
-        android:text="@string/clearBtnText"
+        android:layout_width="150sp"
+        android:layout_height="48sp"
+        android:layout_marginEnd="16sp"
+        android:layout_marginBottom="4sp"
         android:onClick="clearData"
+        android:text="@string/clearBtnText"
         app:layout_constraintBottom_toTopOf="@+id/contentHolder"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contentHolder"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="32dp"
+        android:layout_width="0sp"
+        android:layout_height="200sp"
+        android:layout_marginTop="40sp"
         app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/contentURLInput" >
+        app:layout_constraintTop_toBottomOf="@+id/contentURLInput">
 
     </androidx.recyclerview.widget.RecyclerView>
 
@@ -84,7 +84,7 @@
         android:id="@+id/contentResultName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="48sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"

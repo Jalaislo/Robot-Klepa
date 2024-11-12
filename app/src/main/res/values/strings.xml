@@ -5,4 +5,7 @@
     <string name="addBtnText">Add content</string>
     <string name="clearBtnText">Clear content</string>
     <string name="randomBtnText">Choose content</string>
+    <string name="pHolderNumber">n.</string>
+    <string name="pHolderURL">Ссылка</string>
+    <string name="pHolderName">Заглушка</string>
 </resources>

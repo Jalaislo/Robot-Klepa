@@ -1,7 +1,9 @@
 package com.example.robotklepa;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -24,7 +26,11 @@ public class MainActivity extends AppCompatActivity {
 
     private final static String FILE_NAME = "contentList.txt";
     private final static String FILE_URL = "urlList.txt";
-    private ArrayList<Content> contents = new ArrayList<>();
+    private ArrayList<Content> contents;
+
+    {
+        contents = new ArrayList<>();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
         EditText contentNameField = findViewById(R.id.contentNameInput);
         EditText contentURLField = findViewById(R.id.contentURLInput);
         Button addBtn = findViewById(R.id.addButton);
-        setData();
+        if (!contents.isEmpty())
+            setData();
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,6 +133,8 @@ public class MainActivity extends AppCompatActivity {
             fosURL = openFileOutput(FILE_URL, MODE_PRIVATE);
             contents.clear();
             updateContentList();
+            clearFields();
+            hideKeyboard();
         } catch (IOException e) {
             showErrorMessage(e.getMessage());
         } finally {
@@ -150,9 +159,14 @@ public class MainActivity extends AppCompatActivity {
         Random random = new Random();
         TextView contentResultName = findViewById(R.id.contentResultName);
         TextView contentResultURL = findViewById(R.id.contentResultURL);
-        int choice = random.nextInt(contents.size());
-        contentResultName.setText(contents.get(choice).getName());
-        contentResultURL.setText(contents.get(choice).getUrl());
+        try {
+            int choice = random.nextInt(contents.size());
+            contentResultName.setText(contents.get(choice).getName());
+            contentResultURL.setText(contents.get(choice).getUrl());
+            hideKeyboard();
+        } catch (IllegalArgumentException e) {
+            showErrorMessage("No content to choose");
+        }
     }
 
     private void showErrorMessage(String message) {
@@ -168,5 +182,11 @@ public class MainActivity extends AppCompatActivity {
         name.setText(null);
         resultName.setText(null);
         resultURL.setText(null);
+    }
+
+    private void hideKeyboard(){
+        View view = this.getCurrentFocus();
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
