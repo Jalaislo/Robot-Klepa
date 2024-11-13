@@ -26,11 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final static String FILE_NAME = "contentList.txt";
     private final static String FILE_URL = "urlList.txt";
-    private ArrayList<Content> contents;
-
-    {
-        contents = new ArrayList<>();
-    }
+    private final ArrayList<Content> contents = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +42,7 @@ public class MainActivity extends AppCompatActivity {
         EditText contentNameField = findViewById(R.id.contentNameInput);
         EditText contentURLField = findViewById(R.id.contentURLInput);
         Button addBtn = findViewById(R.id.addButton);
-        if (!contents.isEmpty())
-            setData();
+        setData();
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,10 +102,10 @@ public class MainActivity extends AppCompatActivity {
             String url = new String(bytes);
             String[] urlList = url.split("\n");
             String[] namesList = names.split("\n");
-            for (int i = 0; i < namesList.length; ++i) {
+            for (int i = 0; i < namesList.length; ++i)
                 contents.add(new Content(i + 1 + ". ", namesList[i], urlList[i]));
-            }
-            updateContentList();
+            if (!contents.isEmpty())
+                updateContentList();
         } catch (IOException e) {
             showErrorMessage(e.getMessage());
         } finally {
@@ -185,8 +180,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void hideKeyboard(){
-        View view = this.getCurrentFocus();
+        View view;
+        view = this.getCurrentFocus();
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        if (view != null)
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
