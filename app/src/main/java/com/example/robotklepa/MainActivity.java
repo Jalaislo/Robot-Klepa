@@ -145,9 +145,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateContentList() {
-        RecyclerView recyclerView = findViewById(R.id.contentHolder);
-        ContentAdapter adapter = new ContentAdapter(this, contents);
-        recyclerView.setAdapter(adapter);
+     RecyclerView recyclerView = findViewById(R.id.contentHolder);
+     ContentAdapter adapter = new ContentAdapter(this, contents);
+     recyclerView.setAdapter(adapter);
     }
 
     public void randomize(View v) {
