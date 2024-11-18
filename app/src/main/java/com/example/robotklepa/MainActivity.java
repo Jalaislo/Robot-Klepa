@@ -4,8 +4,9 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,19 +15,31 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
-
+    // файлы сохранения данных
     private final static String FILE_NAME = "contentList.txt";
     private final static String FILE_URL = "urlList.txt";
-    private final ArrayList<Content> contents = new ArrayList<>();
+
+    // набор данных, которые свяжем со списком
+    Content[] contents = {
+            new Content("1. ", "www", "пп"),
+            new Content("2. ", "ссс", "www"),
+            new Content("3. ", "агуша", "www"),
+            new Content("4. ", "ссс", "www"),
+            new Content("5. ", "ссс", "www"),
+            new Content("6. ", "ссс", "www"),
+            new Content("7. ", "ссс", "www"),
+            new Content("8. ", "ссс", "www"),
+            new Content("9. ", "ссс", "www"),
+            new Content("10. ", "ссс", "www")
+    };
+
+    ArrayList<String> contentHeadList;
+    ArrayList<String> contentURLList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,115 +52,33 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        EditText contentNameField = findViewById(R.id.contentNameInput);
-        EditText contentURLField = findViewById(R.id.contentURLInput);
-        Button addBtn = findViewById(R.id.addButton);
-        setData();
+        // задаем набор данных для отображения
+        this.contentHeadList = setContentHeadList();;
+        this.contentURLList = setContentURLList();;
 
-        addBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (contentNameField.getText().toString().isEmpty() && contentURLField.getText().toString().isEmpty()) {
-                    showErrorMessage("No content to add");
-                } else if (contentNameField.getText().toString().isEmpty() && !contentURLField.getText().toString().isEmpty()) {
-                    showErrorMessage("No name for content");
-                } else if (!contentNameField.getText().toString().isEmpty() && contentURLField.getText().toString().isEmpty()) {
-                    showErrorMessage("No link for content to add");
-                } else {
-                    addData(contentNameField, contentURLField);
-                    setData();
-                    clearFields();
-                }
-            }
-        });
+        // получаем элемент ListView
+        ListView contentList = findViewById(R.id.contentHolder);
+
+        // создаем адаптер
+        ArrayAdapter<String> adapter = new ArrayAdapter(this,
+                android.R.layout.simple_list_item_1, this.contentHeadList);
+
+        // устанавливаем для списка адаптер
+        contentList.setAdapter(adapter);
     }
 
-    private void addData(EditText contentField, EditText urlField) {
-        FileOutputStream fosName = null;
-        FileOutputStream fosURL = null;
-        try {
-            fosName = openFileOutput(FILE_NAME, MODE_APPEND);
-            fosURL = openFileOutput(FILE_URL, MODE_APPEND);
-            String contentName = contentField.getText().toString() + "\n";
-            String contentURL = urlField.getText().toString() + "\n";
-            fosName.write(contentName.getBytes());
-            fosURL.write(contentURL.getBytes());
-            Toast.makeText(this, "Файл сохранен", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            showErrorMessage(e.getMessage());
-        } finally {
-            try {
-                if (fosName != null)
-                    fosName.close();
-                if (fosURL != null)
-                    fosURL.close();
-            } catch (IOException e) {
-                showErrorMessage(e.getMessage());
-            }
-        }
+    private ArrayList<String> setContentHeadList() {
+        ArrayList<String> contentList = new ArrayList<>();
+        for (int i = 0; i < contents.length; ++i)
+            contentList.add(contents[i].getNumber() + contents[i].getName());
+        return contentList;
     }
 
-    private void setData() {
-        FileInputStream finName = null;
-        FileInputStream finURL = null;
-        try {
-            finName = openFileInput(FILE_NAME);
-            finURL = openFileInput(FILE_URL);
-            contents.clear();
-            byte[] bytes = new byte[finName.available()];
-            finName.read(bytes);
-            String names = new String(bytes);
-            bytes = new byte[finURL.available()];
-            finURL.read(bytes);
-            String url = new String(bytes);
-            String[] urlList = url.split("\n");
-            String[] namesList = names.split("\n");
-            for (int i = 0; i < namesList.length; ++i)
-                contents.add(new Content(i + 1 + ". ", namesList[i], urlList[i]));
-            if (!contents.isEmpty())
-                updateContentList();
-        } catch (IOException e) {
-            showErrorMessage(e.getMessage());
-        } finally {
-            try {
-                if (finName != null)
-                    finName.close();
-                if (finURL != null)
-                    finURL.close();
-            } catch (IOException e) {
-                showErrorMessage(e.getMessage());
-            }
-        }
-    }
-
-    public void clearData(View v) {
-        FileOutputStream fosName = null;
-        FileOutputStream fosURL = null;
-        try {
-            fosName = openFileOutput(FILE_NAME, MODE_PRIVATE);
-            fosURL = openFileOutput(FILE_URL, MODE_PRIVATE);
-            contents.clear();
-            updateContentList();
-            clearFields();
-            hideKeyboard();
-        } catch (IOException e) {
-            showErrorMessage(e.getMessage());
-        } finally {
-            try {
-                if (fosName != null)
-                    fosName.close();
-                if (fosURL != null)
-                    fosURL.close();
-            } catch (IOException e) {
-                showErrorMessage(e.getMessage());
-            }
-        }
-    }
-
-    private void updateContentList() {
-     RecyclerView recyclerView = findViewById(R.id.contentHolder);
-     ContentAdapter adapter = new ContentAdapter(this, contents);
-     recyclerView.setAdapter(adapter);
+    private ArrayList<String> setContentURLList() {
+        ArrayList<String> contentList = new ArrayList<>();
+        for (int i = 0; i < contents.length; ++i)
+            contentList.add(contents[i].getUrl());
+        return contentList;
     }
 
     public void randomize(View v) {
@@ -155,28 +86,13 @@ public class MainActivity extends AppCompatActivity {
         TextView contentResultName = findViewById(R.id.contentResultName);
         TextView contentResultURL = findViewById(R.id.contentResultURL);
         try {
-            int choice = random.nextInt(contents.size());
-            contentResultName.setText(contents.get(choice).getName());
-            contentResultURL.setText(contents.get(choice).getUrl());
+            int choice = random.nextInt(contents.length);
+            contentResultName.setText(contents[choice].getName());
+            contentResultURL.setText(contents[choice].getUrl());
             hideKeyboard();
         } catch (IllegalArgumentException e) {
             showErrorMessage("No content to choose");
         }
-    }
-
-    private void showErrorMessage(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-    }
-
-    private void clearFields() {
-        EditText name = findViewById(R.id.contentNameInput);
-        EditText url = findViewById(R.id.contentURLInput);
-        TextView resultName = findViewById(R.id.contentResultName);
-        TextView resultURL = findViewById(R.id.contentResultURL);
-        url.setText(null);
-        name.setText(null);
-        resultName.setText(null);
-        resultURL.setText(null);
     }
 
     private void hideKeyboard(){
@@ -185,5 +101,9 @@ public class MainActivity extends AppCompatActivity {
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         if (view != null)
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    private void showErrorMessage(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 }
