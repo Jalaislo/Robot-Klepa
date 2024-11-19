@@ -48,14 +48,14 @@
         android:layout_width="150sp"
         android:layout_height="48sp"
         android:layout_marginStart="130dp"
-        android:layout_marginTop="104dp"
         android:layout_marginEnd="130dp"
+        android:layout_marginBottom="48dp"
         android:onClick="randomize"
         android:text="@string/randomBtnText"
+        app:layout_constraintBottom_toTopOf="@+id/contentHolder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/clearButton"
@@ -69,14 +69,15 @@
 
     <ListView
         android:id="@+id/contentHolder"
-        android:layout_width="match_parent"
-        android:layout_height="350sp"
+        android:layout_width="0sp"
+        android:layout_height="300sp"
+        android:choiceMode="multipleChoice"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.545" />
+        app:layout_constraintVertical_bias="0.593" />
 
     <TextView
         android:id="@+id/contentResultName"

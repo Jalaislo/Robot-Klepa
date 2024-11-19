@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,7 +17,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,18 +32,11 @@ public class MainActivity extends AppCompatActivity {
     Content[] contents = {
             new Content("1. ", "www", "пп"),
             new Content("2. ", "ссс", "www"),
-            new Content("3. ", "агуша", "www"),
-            new Content("4. ", "ссс", "www"),
-            new Content("5. ", "ссс", "www"),
-            new Content("6. ", "ссс", "www"),
-            new Content("7. ", "ссс", "www"),
-            new Content("8. ", "ссс", "www"),
-            new Content("9. ", "ссс", "www"),
-            new Content("10. ", "ссс", "www")
+            new Content("3. ", "агуша", "www")
     };
 
-    ArrayList<String> contentHeadList;
-    ArrayList<String> contentURLList;
+    ArrayList<String> contentHeadList = new ArrayList<>();
+    ArrayList<Content> choosedContent = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,42 +50,56 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // задаем набор данных для отображения
-        this.contentHeadList = setContentHeadList();;
-        this.contentURLList = setContentURLList();;
+        setContentHeadList(contentHeadList);
 
         // получаем элемент ListView
         ListView contentList = findViewById(R.id.contentHolder);
 
         // создаем адаптер
         ArrayAdapter<String> adapter = new ArrayAdapter(this,
-                android.R.layout.simple_list_item_1, this.contentHeadList);
+                android.R.layout.simple_list_item_multiple_choice, contentHeadList);
 
         // устанавливаем для списка адаптер
         contentList.setAdapter(adapter);
+
+        // добавляем для списка слушатель
+        contentList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id)
+            {
+                // получаем нажатый элемент
+                if (contentList.isItemChecked(position))
+                    choosedContent.add(contents[position]);
+                else
+                    choosedContent.remove(contents[position]);
+            }
+        });
     }
 
-    private ArrayList<String> setContentHeadList() {
-        ArrayList<String> contentList = new ArrayList<>();
-        for (int i = 0; i < contents.length; ++i)
-            contentList.add(contents[i].getNumber() + contents[i].getName());
-        return contentList;
-    }
-
-    private ArrayList<String> setContentURLList() {
-        ArrayList<String> contentList = new ArrayList<>();
-        for (int i = 0; i < contents.length; ++i)
-            contentList.add(contents[i].getUrl());
-        return contentList;
+    private void setContentHeadList(List<String> contentList) {
+        for (Content content : contents)
+            contentList.add(content.getNumber() + content.getName() + "\n" + content.getUrl());
     }
 
     public void randomize(View v) {
         Random random = new Random();
+        ArrayList<Content> choiceArr = new ArrayList<>();
         TextView contentResultName = findViewById(R.id.contentResultName);
         TextView contentResultURL = findViewById(R.id.contentResultURL);
+        contentResultName.setText(null);
+        contentResultURL.setText(null);
         try {
-            int choice = random.nextInt(contents.length);
-            contentResultName.setText(contents[choice].getName());
-            contentResultURL.setText(contents[choice].getUrl());
+            if (choosedContent.isEmpty()) {
+                for (Content i : contents)
+                    choiceArr.add(i);
+            } else {
+                for (Content i : choosedContent)
+                    choiceArr.add(i);
+            }
+            int choice = random.nextInt(choiceArr.size());
+            contentResultName.setText(choiceArr.get(choice).getName());
+            contentResultURL.setText(choiceArr.get(choice).getUrl());
+            choiceArr.clear();
             hideKeyboard();
         } catch (IllegalArgumentException e) {
             showErrorMessage("No content to choose");
