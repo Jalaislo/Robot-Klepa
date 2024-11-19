@@ -17,6 +17,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,15 +29,12 @@ public class MainActivity extends AppCompatActivity {
     private final static String FILE_NAME = "contentList.txt";
     private final static String FILE_URL = "urlList.txt";
 
-    // набор данных, которые свяжем со списком
-    Content[] contents = {
-            new Content("1. ", "www", "пп"),
-            new Content("2. ", "ссс", "www"),
-            new Content("3. ", "агуша", "www")
-    };
-
+    // объекты для класса MainActivity
+    ArrayList<Content> contents = new ArrayList<>();
     ArrayList<String> contentHeadList = new ArrayList<>();
-    ArrayList<Content> choosedContent = new ArrayList<>();
+    ArrayList<Content> chosenContent = new ArrayList<>();
+    ListView contentList;
+    ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,15 +50,12 @@ public class MainActivity extends AppCompatActivity {
         // задаем набор данных для отображения
         setContentHeadList(contentHeadList);
 
-        // получаем элемент ListView
-        ListView contentList = findViewById(R.id.contentHolder);
-
-        // создаем адаптер
-        ArrayAdapter<String> adapter = new ArrayAdapter(this,
+        // задаем референсы для отображения списка
+        contentList = findViewById(R.id.contentHolder);
+        adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_multiple_choice, contentHeadList);
-
-        // устанавливаем для списка адаптер
         contentList.setAdapter(adapter);
+        setData();
 
         // добавляем для списка слушатель
         contentList.setOnItemClickListener(new AdapterView.OnItemClickListener(){
@@ -69,16 +64,126 @@ public class MainActivity extends AppCompatActivity {
             {
                 // получаем нажатый элемент
                 if (contentList.isItemChecked(position))
-                    choosedContent.add(contents[position]);
+                    chosenContent.add(contents.get(position));
                 else
-                    choosedContent.remove(contents[position]);
+                    chosenContent.remove(contents.get(position));
             }
         });
     }
 
+    public void addData(View v) {
+        FileOutputStream fosName = null;
+        FileOutputStream fosURL = null;
+        EditText contentNameField = findViewById(R.id.contentNameInput);
+        EditText urlField = findViewById(R.id.contentURLInput);
+        if (contentNameField.getText().toString().isEmpty() && urlField.getText().toString().isEmpty()) {
+            showErrorMessage("No content to add");
+        } else if (contentNameField.getText().toString().isEmpty() && !urlField.getText().toString().isEmpty()) {
+            showErrorMessage("No name for content");
+        } else if (!contentNameField.getText().toString().isEmpty() && urlField.getText().toString().isEmpty()) {
+            showErrorMessage("No link for content to add");
+        } else {
+            try {
+                fosName = openFileOutput(FILE_NAME, MODE_APPEND);
+                fosURL = openFileOutput(FILE_URL, MODE_APPEND);
+                String contentName = contentNameField.getText().toString() + "\n";
+                String contentURL = urlField.getText().toString() + "\n";
+                fosName.write(contentName.getBytes());
+                fosURL.write(contentURL.getBytes());
+                clearFields();
+            } catch (IOException e) {
+                showErrorMessage(e.getMessage());
+            } finally {
+                try {
+                    if (fosName != null)
+                        fosName.close();
+                    if (fosURL != null)
+                        fosURL.close();
+                    setData();
+                } catch (IOException e) {
+                    showErrorMessage(e.getMessage());
+                }
+            }
+        }
+    }
+
+    public void setData() {
+        FileInputStream finName = null;
+        FileInputStream finURL = null;
+        try {
+            finName = openFileInput(FILE_NAME);
+            finURL = openFileInput(FILE_URL);
+            contents.clear();
+            contentHeadList.clear();
+            byte[] bytes = new byte[finName.available()];
+            finName.read(bytes);
+            String names = new String(bytes);
+            bytes = new byte[finURL.available()];
+            finURL.read(bytes);
+            String url = new String(bytes);
+            String[] urlList = url.split("\n");
+            String[] namesList = names.split("\n");
+            for (int i = 0; i < namesList.length; ++i) {
+                if (!namesList[i].isEmpty())
+                    contents.add(new Content(i + 1 + ". ", namesList[i], urlList[i]));
+            }
+            setContentHeadList(contentHeadList);
+            if (!contents.isEmpty())
+                adapter.notifyDataSetChanged();
+        } catch (IOException e) {
+            showErrorMessage(e.getMessage());
+        } finally {
+            try {
+                if (finName != null)
+                    finName.close();
+                if (finURL != null)
+                    finURL.close();
+            } catch (IOException e) {
+                showErrorMessage(e.getMessage());
+            }
+        }
+    }
+
+    public void clearData(View v) {
+        FileOutputStream fosName = null;
+        FileOutputStream fosURL = null;
+        try {
+            fosName = openFileOutput(FILE_NAME, MODE_PRIVATE);
+            fosURL = openFileOutput(FILE_URL, MODE_PRIVATE);
+            contents.clear();
+            chosenContent.clear();
+            clearFields();
+            contentHeadList.clear();
+            adapter.notifyDataSetChanged();
+            hideKeyboard();
+        } catch (IOException e) {
+            showErrorMessage(e.getMessage());
+        } finally {
+            try {
+                if (fosName != null)
+                    fosName.close();
+                if (fosURL != null)
+                    fosURL.close();
+            } catch (IOException e) {
+                showErrorMessage(e.getMessage());
+            }
+        }
+    }
+
+    private void clearFields() {
+        EditText name = findViewById(R.id.contentNameInput);
+        EditText url = findViewById(R.id.contentURLInput);
+        TextView resultName = findViewById(R.id.contentResultName);
+        TextView resultURL = findViewById(R.id.contentResultURL);
+        url.setText(null);
+        name.setText(null);
+        resultName.setText(null);
+        resultURL.setText(null);
+    }
+
     private void setContentHeadList(List<String> contentList) {
         for (Content content : contents)
-            contentList.add(content.getNumber() + content.getName() + "\n" + content.getUrl());
+            contentList.add(content.getNumber() + content.getName());
     }
 
     public void randomize(View v) {
@@ -89,12 +194,10 @@ public class MainActivity extends AppCompatActivity {
         contentResultName.setText(null);
         contentResultURL.setText(null);
         try {
-            if (choosedContent.isEmpty()) {
-                for (Content i : contents)
-                    choiceArr.add(i);
+            if (chosenContent.isEmpty()) {
+                choiceArr.addAll(contents);
             } else {
-                for (Content i : choosedContent)
-                    choiceArr.add(i);
+                choiceArr.addAll(chosenContent);
             }
             int choice = random.nextInt(choiceArr.size());
             contentResultName.setText(choiceArr.get(choice).getName());
