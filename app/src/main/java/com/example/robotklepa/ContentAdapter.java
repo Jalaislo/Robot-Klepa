@@ -29,6 +29,8 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.ViewHold
     public void onBindViewHolder(ContentAdapter.ViewHolder holder, int position) {
         Content content = contents.get(position);
         holder.nameView.setText(content.getName());
+        holder.urlView.setText(content.getUrl());
+        holder.number.setText(content.getNumber());
     }
 
     @Override
@@ -37,10 +39,12 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.ViewHold
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        final TextView nameView;
+        final TextView nameView, urlView, number;
         ViewHolder(View view) {
             super(view);
             nameView = view.findViewById(R.id.name);
+            urlView = view.findViewById(R.id.URL);
+            number = view.findViewById(R.id.number);
         }
     }
 }
